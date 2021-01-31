@@ -4,7 +4,6 @@ import {signIn} from '../actions/actions';
 
 import {View} from 'react-native';
 import {Container, Content, Form, Item, Input, Button, Text} from 'native-base';
-import * as Progress from 'react-native-progress';
 
 import {Logo, Heading} from '../components/Fields';
 import styles from '../styles/styles';

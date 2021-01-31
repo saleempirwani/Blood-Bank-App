@@ -6,7 +6,7 @@ import {
 
 
 import { StyleSheet } from 'react-native'
-import bloodlogo from '../../images/blood-logo.png'
+import bloodlogo from '../../images/blood-logo.jpg'
 
 
 const Logo = () =>

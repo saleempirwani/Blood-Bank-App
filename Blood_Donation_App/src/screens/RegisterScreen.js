@@ -1,11 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {View} from 'react-native';
 import {Container, Content, Form, Item, Input, Button, Text} from 'native-base';
 import {Picker} from '@react-native-picker/picker';
 import * as Progress from 'react-native-progress';
-import {PermissionsAndroid, Platform, Alert} from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
 
 import {signUp} from '../actions/actions';
 import {Logo, Heading} from '../components/Fields';
@@ -116,51 +114,6 @@ function Register({navigation}) {
       longitude: '',
     });
     setNext(false);
-  };
-
-  // getting location
-  const getLocation = async () => {
-    if (Platform.OS === 'ios') {
-      findCoordinates();
-    } else {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'Location Access Required',
-            message: 'This App needs to Access your location',
-          },
-        );
-
-        console.log('GRANTED', granted);
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          findCoordinates();
-        } else {
-          alert('Permission Denied! could not get location, try again');
-          setNext(false);
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    }
-  };
-
-  const findCoordinates = () => {
-    Geolocation.getCurrentPosition(
-      (position) => {
-        const {
-          coords: {longitude, latitude},
-        } = position;
-        console.log(latitude, longitude);
-        // Switch To Next Screen
-        if (latitude !== 0 && longitude !== 0) {
-          // dispatch(signUp(user, userType));
-          // clear();
-        }
-      },
-      (error) => Alert.alert(error.message),
-      {enableHighAccuracy: true, timeout: 10000, maximumAge: 1000},
-    );
   };
 
   return (

@@ -18,7 +18,7 @@ const DonorScreen = () => {
         Thanks for Registration
       </Text>
       <Text style={{fontSize: 20, textAlign: 'center', paddingHorizontal: 20}}>
-        You will be informed by call, message or location that you provide us.
+        You will be informed by call or message that you provide us.
       </Text>
 
       <Button

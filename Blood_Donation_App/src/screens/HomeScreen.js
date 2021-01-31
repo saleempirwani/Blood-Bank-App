@@ -4,7 +4,7 @@ import {StyleSheet, View} from 'react-native';
 import {Text} from 'react-native-elements';
 import {Container, Content} from 'native-base';
 import {Picker} from '@react-native-picker/picker';
-import * as Progress from 'react-native-progress';
+import Bar from 'react-native-progress/Bar';
 import {getDonorData} from '../actions/actions';
 
 import firebase from '../config/firebase';
@@ -18,12 +18,12 @@ const Home = ({navigation}) => {
 
   useEffect(() => {
     const get = () => {
-      let donor 
+      let donor;
       try {
         database.ref('users/donor').on('value', (snapshot) => {
           donor = snapshot.val();
           donor = donor ? donor : {};
-          console.log('GET', donor);
+          // console.log('GET', donor);
           let keys = Object.keys(donor);
           donor = keys.map((k) => donor[k]);
           dispatch(getDonorData(donor));
@@ -35,7 +35,7 @@ const Home = ({navigation}) => {
     get();
   }, []);
 
-  console.log('STATE => ', state);
+  // console.log('STATE => ', state);
   const bloodTypes = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O-'];
   const [selectedBloodGroup, setSelectedBloodGroup] = useState('A+');
 
@@ -69,8 +69,20 @@ const Home = ({navigation}) => {
       </Content>
     </Container>
   ) : (
+    <NoDonorFound />
+  );
+};
+
+const NoDonorFound = () => {
+  return (
     <Container style={globalStyle.midContainer}>
-      <Progress.CircleSnail size={50} color={['red', 'green', 'blue']} />
+      <Text h2 style={{marginBottom: 10}}>
+        No Donor Found
+      </Text>
+      <Text h4 style={{marginBottom: 50}}>
+        Loading data...
+      </Text>
+      <Bar progress={0.8} width={250}/>
     </Container>
   );
 };

@@ -46,7 +46,7 @@ function Navigation() {
     <NavigationContainer>
       {isLoading ? (
         <Splash />
-      ) : state.userToken === null ? (
+      ) : state.userToken == null ? (
         <AuthStack />
       ) : state.home === null ? (
         <HomeStack /> // Acceptor

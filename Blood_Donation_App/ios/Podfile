@@ -10,6 +10,8 @@ target 'Blood_Donation_App' do
 
   pod 'ReactNativeART', :path => '../node_modules/@react-native-community/art'
 
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
+
   target 'Blood_Donation_AppTests' do
     inherit! :complete
     # Pods for testing
