@@ -1,15 +1,21 @@
 import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
-import {singIn} from '../actions/actions';
+import {signIn} from '../actions/actions';
 
 import {View} from 'react-native';
 import {Container, Content, Form, Item, Input, Button, Text} from 'native-base';
+import * as Progress from 'react-native-progress';
 
 import {Logo, Heading} from '../components/Fields';
 import styles from '../styles/styles';
-import {emailValidation, emptyPasswordValidation, isNetWorking} from '../validation/validation';
+import {
+  emailValidation,
+  emptyPasswordValidation,
+  isNetWorking,
+} from '../validation/validation';
 
 function Login({navigation}) {
+  const [next, setNext] = useState(false);
   const [credential, setCredential] = useState({
     email: '',
     password: '',
@@ -19,7 +25,6 @@ function Login({navigation}) {
 
   // Login into Firebase
   const login = () => {
-
     // Checking for Internet
     if (!isNetWorking()) {
       return;
@@ -27,11 +32,11 @@ function Login({navigation}) {
 
     const {email, password} = credential;
     if (emailValidation(email) && emptyPasswordValidation(password)) {
-      dispatch(singIn(credential));
+      dispatch(signIn(credential));
+      // setNext(true);
       clear();
     }
   };
-
 
   // Clear Fields
   const clear = () => {
@@ -54,7 +59,7 @@ function Login({navigation}) {
               placeholder="Email *"
               value={credential.email}
               onChangeText={(text) =>
-                setCredential({...credential, email: text})
+                setCredential({...credential, email: text.toLowerCase()})
               }
             />
           </Item>

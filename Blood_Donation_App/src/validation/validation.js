@@ -94,6 +94,7 @@ export const emptyPasswordValidation = (pass) => {
 
 // Checking Internet Connection
 export const isNetWorking = () => {
+    // console.log("INTERNET", window.navigator.onLine)
     if(false){
         alert('No Internet Connection')
         return false

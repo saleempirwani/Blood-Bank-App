@@ -145,16 +145,23 @@ android {
         }
     }
     signingConfigs {
-        debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+        // debug {
+        //     storeFile file('debug.keystore')
+        //     storePassword 'android'
+        //     keyAlias 'androiddebugkey'
+        //     keyPassword 'android'}
+
+            release {
+                storeFile file('your_key_name.keystore')
+                storePassword 'direct'
+                keyAlias 'your_key_alias'
+                keyPassword 'direct'
         }
     }
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+            // signingConfig signingConfigs.debug
+              signingConfig signingConfigs.release
         }
         release {
             matchingFallbacks = ['release', 'debug']

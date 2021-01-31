@@ -35,7 +35,7 @@ const Donor = ({ route }) => {
             <CardItem>
                 <Body>
                     <CardContent item="Donor Name" value={donor.name} />
-                    <CardContent item="Blood Group" value={donor.bloodGroup} />
+                    <CardContent item="Blood Group" value={donor.blood} />
                     <CardContent item="Phone" value={donor.phone} />
                     <CardContent item="Address" value={donor.address} />
                     <View style={styles.btnContent}>

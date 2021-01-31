@@ -17,7 +17,7 @@ const Logo = () =>
 
 const Heading = ({ text }) =>
     <Text
-        h3
+        h2
         style={styles.text}>
         {text}
     </Text>
@@ -25,8 +25,8 @@ const Heading = ({ text }) =>
 
 const styles = StyleSheet.create({
     image: {
-        width: 150,
-        height: 150,
+        width: 170,
+        height: 170,
         margin: 5,
     },
     text: {

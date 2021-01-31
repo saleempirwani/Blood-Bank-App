@@ -13,9 +13,10 @@ const styles = StyleSheet.create({
     content: {
         display: 'flex',
         alignItems: 'center',
-        marginBottom: 30,
+        marginBottom: 40,
     },
     input: {
+        width: '100%',
         padding: 3,
         marginBottom: 20,
         borderRadius: 5,

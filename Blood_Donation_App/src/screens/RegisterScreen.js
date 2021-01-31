@@ -22,96 +22,77 @@ import {
 } from '../validation/validation';
 
 function Register({navigation}) {
+  const bloodTypes = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O-'];
+  const dispatch = useDispatch();
+
   // States...
   const [next, setNext] = useState(false);
-  const bloodTypes = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O-'];
-  const [userKind, setUserKind] = useState('acceptor');
+  const [userType, setUserType] = useState('acceptor');
+  const [blood, setBlood] = useState('A+');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [location, setLocation] = useState({
+    latitude: '',
+    longitude: '',
+  });
   const [credential, setCredential] = useState({
     email: '',
     password: '',
     cmfPassword: '',
   });
-  const [acceptorProfile, setAcceptorProfile] = useState({
-    credential: {...credential},
-    profile: {
-      email: '',
-      userType: '',
-    },
-  });
-  const [donorProfile, setDonorProfile] = useState({
-    credential: {...credential},
-    profile: {
-      email: '',
-      name: '',
-      phone: '',
-      address: '',
-      userType: 'acceptor',
-      blood: 'A+',
-      location: {
-        latitude: '',
-        longitude: '',
-      },
-    },
-  });
-
-  useEffect(() => {}, [donorProfile, acceptorProfile]);
-
-  const dispatch = useDispatch();
 
   // Register into Firebase
-  console.log(userKind);
+
   const register = () => {
+    let user = {};
+
     // Checking for Internet Connection
     if (!isNetWorking()) {
       return;
     }
-
-    // getLocation();
-    // setNext(true);
-    // return
 
     // Checking for Credential
     if (!validateCredential(credential)) {
       return;
     }
 
-    if (userKind === 'donor') {
-      const {name, address, phone} = donorProfile.profile;
-      if (
+    if (userType === 'donor') {
+      let check =
         nameValidation(name) &&
         addressValidation(address) &&
-        phoneValidation(phone)
-      ) {
-        // setDonorProfile({
-        //   ...donorProfile,
-        //   profile: {
-        //     ...donorProfile.profile,
-        //     email: credential.email,
-        //     userType: userKind,
-        //     location: {
-        //       ...donorProfile.profile.location,
-        //       longitude: JSON.stringify(longitude),
-        //       latitude: JSON.stringify(latitude),
-        //     },
-        //   },
-        //   credential: {...credential},
-        // });
-        setNext(true);
-        getLocation();
+        phoneValidation(phone);
+
+      if (!check) {
+        return;
       }
-    } else {
-      setAcceptorProfile({
-        ...acceptorProfile,
-        credential: {...credential},
+
+      user = {
+        credential,
         profile: {
           email: credential.email,
-          userType: userKind,
+          name,
+          address,
+          phone,
+          userType,
+          blood,
+          location: {
+            longitude: '0',
+            latitude: '0',
+          },
         },
-      });
-      setNext(true);
-      dispatch(signUp(acceptorProfile, userKind));
-      clear();
+      };
+    } else if (userType === 'acceptor') {
+      user = {
+        credential,
+        profile: {
+          email: credential.email,
+          userType,
+        },
+      };
     }
+    dispatch(signUp(user, userType));
+    clear();
   };
 
   // Validation Credentials
@@ -121,27 +102,18 @@ function Register({navigation}) {
       return true;
     }
   };
+
   // Clear Fields
   const clear = () => {
     setCredential({email: '', password: '', cmfPassword: ''});
-    setDonorProfile({
-      credential: {...credential},
-      profile: {
-        email: '',
-        name: '',
-        phone: '',
-        address: '',
-        userType: 'acceptor',
-        blood: 'A+',
-        location: {latitude: '', longitude: ''},
-      },
-    });
-    setAcceptorProfile({
-      credential: {...credential},
-      profile: {
-        email: '',
-        userType: '',
-      },
+    setUserType('acceptor');
+    setBlood('A+');
+    setName('');
+    setPhone('');
+    setAddress('');
+    setLocation({
+      latitude: '',
+      longitude: '',
     });
     setNext(false);
   };
@@ -182,28 +154,8 @@ function Register({navigation}) {
         console.log(latitude, longitude);
         // Switch To Next Screen
         if (latitude !== 0 && longitude !== 0) {
-          setDonorProfile({
-            ...donorProfile,
-            profile: {
-              ...donorProfile.profile,
-              email: credential.email,
-              userType: userKind,
-              location: {
-                ...donorProfile.profile.location,
-                longitude: JSON.stringify(longitude),
-                latitude: JSON.stringify(latitude),
-              },
-            },
-            credential: {...credential},
-          });
-          console.log('***********');
-          // dispatch(signUp(donorProfile));
-          console.log('######');
-          clear();
-        } else {
-          setNext(false);
-          alert('Could not get location try again.');
-          return;
+          // dispatch(signUp(user, userType));
+          // clear();
         }
       },
       (error) => Alert.alert(error.message),
@@ -227,7 +179,7 @@ function Register({navigation}) {
                 placeholder="Email *"
                 value={credential.email}
                 onChangeText={(text) =>
-                  setCredential({...credential, email: text})
+                  setCredential({...credential, email: text.toLowerCase()})
                 }
               />
             </Item>
@@ -256,28 +208,25 @@ function Register({navigation}) {
 
             <View style={styles.picker}>
               <Picker
-                selectedValue={userKind}
+                selectedValue={userType}
                 style={{height: 50, width: '100%'}}
-                onValueChange={(itemValue) => setUserKind(itemValue)}>
+                onValueChange={(itemValue) => setUserType(itemValue)}>
                 <Picker.Item label="Acceptor (User Type)" value="acceptor" />
                 <Picker.Item label="Donor (User Type)" value="donor" />
               </Picker>
             </View>
 
-            {userKind === 'donor' ? (
+            {userType === 'donor' ? (
               <>
                 <View style={styles.content}>
                   <Heading text="Add Donor Info" />
                 </View>
                 <View style={styles.picker}>
                   <Picker
-                    selectedValue={donorProfile.profile.blood}
+                    selectedValue={blood}
                     style={{height: 50, width: '100%'}}
                     onValueChange={(itemValue) => {
-                      setDonorProfile({
-                        ...donorProfile,
-                        profile: {...donorProfile.profile, blood: itemValue},
-                      });
+                      setBlood(itemValue);
                     }}>
                     {bloodTypes.map((blood, i) => (
                       <Picker.Item
@@ -292,13 +241,8 @@ function Register({navigation}) {
                 <Item regular style={styles.input}>
                   <Input
                     placeholder="Name *"
-                    value={donorProfile.profile.name}
-                    onChangeText={(text) =>
-                      setDonorProfile({
-                        ...donorProfile,
-                        profile: {...donorProfile.profile, name: text},
-                      })
-                    }
+                    value={name}
+                    onChangeText={(text) => setName(text)}
                   />
                 </Item>
 
@@ -306,26 +250,16 @@ function Register({navigation}) {
                   <Input
                     placeholder="Phone *"
                     keyboardType="numeric"
-                    value={donorProfile.profile.phone}
-                    onChangeText={(text) =>
-                      setDonorProfile({
-                        ...donorProfile,
-                        profile: {...donorProfile.profile, phone: text},
-                      })
-                    }
+                    value={phone}
+                    onChangeText={(text) => setPhone(text)}
                   />
                 </Item>
 
                 <Item regular style={styles.input}>
                   <Input
                     placeholder="Address *"
-                    value={donorProfile.profile.address}
-                    onChangeText={(text) =>
-                      setDonorProfile({
-                        ...donorProfile,
-                        profile: {...donorProfile.profile, address: text},
-                      })
-                    }
+                    value={address}
+                    onChangeText={(text) => setAddress(text)}
                   />
                 </Item>
               </>

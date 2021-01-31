@@ -2,39 +2,45 @@ import React, {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {StyleSheet, View} from 'react-native';
 import {Text} from 'react-native-elements';
-import {Button, Container, Content} from 'native-base';
+import {Container, Content} from 'native-base';
 import {Picker} from '@react-native-picker/picker';
 import * as Progress from 'react-native-progress';
 import {getDonorData} from '../actions/actions';
 
 import firebase from '../config/firebase';
-
 import Box from '../components/Box';
 import globalStyle from '../styles/styles';
-// import data from '../../data/data';
 
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
-
-  const state = useSelector((state) => state.userReducer);
-
+  let state = useSelector((state) => state.userReducer);
   const database = firebase.database();
 
   useEffect(() => {
     const get = () => {
-      database.ref('users').on('value', (snapshot) => {
-        let data = snapshot.val();
-        let a = data.donor;
-        dispatch(getDonorData(a == null ? [] : Object.values(a)));
-      });
+      let donor 
+      try {
+        database.ref('users/donor').on('value', (snapshot) => {
+          donor = snapshot.val();
+          donor = donor ? donor : {};
+          console.log('GET', donor);
+          let keys = Object.keys(donor);
+          donor = keys.map((k) => donor[k]);
+          dispatch(getDonorData(donor));
+        });
+      } catch (e) {
+        console.log('ERROR HomeScreen Firebase', e);
+      }
     };
     get();
   }, []);
 
+  console.log('STATE => ', state);
   const bloodTypes = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O-'];
   const [selectedBloodGroup, setSelectedBloodGroup] = useState('A+');
+
   const getDonor = () =>
-    state.filter((donor) => donor.bloodGroup === selectedBloodGroup);
+    state.filter((donor) => donor.blood === selectedBloodGroup);
 
   return state.length ? (
     <Container style={styles.container}>

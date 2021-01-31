@@ -1,6 +1,6 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {restoreToken, singOut,} from '../actions/actions';
+import {restoreToken, singOut, getDonorData} from '../actions/actions';
 
 import {Button, Text} from 'native-base';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,6 +20,8 @@ function Navigation() {
   const state = useSelector((state) => state.authReducer);
   const dispatch = useDispatch();
 
+  const [isLoading, setIsLoading] = useState(true)
+
   useEffect(() => {
     const bootstrapAsync = async () => {
       let userToken, home;
@@ -34,11 +36,15 @@ function Navigation() {
     };
 
     bootstrapAsync();
+
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 2000);
   }, []);
 
   return (
     <NavigationContainer>
-      {state.isLoading ? (
+      {isLoading ? (
         <Splash />
       ) : state.userToken === null ? (
         <AuthStack />
@@ -100,6 +106,7 @@ const HomeStack = () => {
               primary
               onPress={() => {
                 dispatch(singOut());
+                dispatch(getDonorData([]));
               }}>
               <Text>Logout</Text>
             </Button>

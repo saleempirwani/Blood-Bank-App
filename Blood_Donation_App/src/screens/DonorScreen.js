@@ -2,7 +2,7 @@ import React from 'react';
 import {Text} from 'react-native-elements';
 import {Container, Button, Text as TextView} from 'native-base';
 import {useDispatch} from 'react-redux';
-import {singOut} from '../actions/actions';
+import {singOut, getDonorData} from '../actions/actions';
 
 import globalStyle from '../styles/styles';
 
@@ -27,6 +27,7 @@ const DonorScreen = () => {
         large
         onPress={() => {
           dispatch(singOut());
+          dispatch(getDonorData([]));
         }}>
         <TextView>Logout</TextView>
       </Button>

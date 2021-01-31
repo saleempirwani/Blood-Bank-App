@@ -1,67 +1,151 @@
 import firebase from '../config/firebase';
 import {storeData, removeData} from '../storage/storage';
 
-import {RESTORE_TOKEN, SIGN_IN, SIGN_OUT, GET_DATA, SIGN_UP} from '../constants';
-// import {getDataFromFirebase} from '../database/database';
+import {
+  RESTORE_TOKEN,
+  SIGN_IN,
+  SIGN_OUT,
+  GET_DATA,
+  SIGN_UP,
+} from '../constants';
 
-export const singIn = ({email, password}) => {
-  let token = 'dummy-auth-token';
-  let home;
+// SIGN_IN FUNCTION HERE...
+export const signIn = ({email, password}) => async (dispatch) => {
+  let token = null,
+    home = null,
+    type = null,
+    some = true;
 
-  if (true) {
-    // Acceptor (HomeScreen)
-    home = null;
-  } else {
-    // DonorScreen
-    home = 'donor';
-    storeData('home', home);
+  try {
+    let response = await firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password);
+    if (response && response.user) {
+      token = response.user.uid;
+    }
+  } catch (e) {
+    alert(e.message);
+    some = false;
   }
 
-  storeData('userToken', token);
+  if (token) {
+    try {
+      firebase
+        .database()
+        .ref('users')
+        .on('value', (snapshot) => {
+          let users = snapshot.val();
+          let data = users == null ? {} : users;
+          let donor = data.donor;
+          let acceptor = data.acceptor;
 
-  return {
+          if (donor) {
+            type = findUserType(donor, email);
+          }
+          if (type == null) {
+            type = findUserType(acceptor, email);
+          }
+        });
+    } catch (e) {
+      console.log('ERROR action.js/signIn', e.message);
+    }
+  }
+
+  if (type) {
+    if (type === 'acceptor') {
+      home = null;
+    } else if (type === 'donor') {
+      home = 'donor';
+      storeData('home', home);
+    }
+
+    storeData('userToken', token);
+  } else {
+    if (some) alert('Something went wrong, could not sign in.');
+    token = null;
+  }
+
+  // console.log('token', token, 'Type', type);
+
+  return dispatch({
     type: SIGN_IN,
     payload: {
       token: token,
       home: home,
     },
-  };
+  });
 };
 
-export const signUp = (data, userKind) => {
+// SIGN_UP FUNCTION HERE...
+export const signUp = (data, userType) => async (dispatch) => {
+  let token = null,
+    home = null,
+    path = null,
+    some = true;
 
-  console.log("USER DATA", data)
-  
-  let token = 'dummy-auth-token';
-  let home;
-  
-  if (userKind === 'acceptor'){  // Acceptor (HomeScreen)
-    home = null;
-
-  }else if(userKind === 'donor'){  // DonorScreen
-    home = 'donor'
-    storeData('home', home);
+  // Firebase SignUp Code
+  try {
+    let response = await firebase
+      .auth()
+      .createUserWithEmailAndPassword(
+        data.credential.email,
+        data.credential.password,
+      );
+    if (response) {
+      token = response.user.uid;
+    }
+  } catch (e) {
+    alert(e.message);
+    some = false;
   }
-  else{
-    alert('Something went wrong')
+
+  // console.log('USER DATA @ SIGNUP', data);
+  if (token) {
+    if (userType === 'acceptor') {
+      path = 'users/acceptor';
+      home = null;
+    }
+    // DonorScreen
+    else if (userType === 'donor') {
+      path = '/users/donor';
+      home = 'donor';
+      storeData('home', home);
+    } else {
+      alert('Something went wrong');
+    }
   }
 
-  storeData('userToken', token);
+  if (path) {
+    try {
+      const id = firebase.database().ref().child(path).push().key;
+      const users = {};
+      users[`${path}/${id}`] = {...data.profile, id};
+      firebase.database().ref().update(users);
+      storeData('userToken', token);
+    } catch (e) {
+      console.log('Error @ SIGNUP', e);
+    }
+  } else {
+    if (some) alert('Something went wrong! could not register.');
+    token = null;
+  }
 
-  return {
+  // console.log('token', token, 'path', path);
+
+  return dispatch({
     type: SIGN_UP,
     payload: {
       token: token,
       home: home,
     },
-  };
+  });
 };
 
-
-export const singOut = () => {
+export const singOut = () => async (dispatch) => {
+  await firebase.auth().signOut();
   removeData('userToken');
   removeData('home');
-  return {type: SIGN_OUT};
+  return dispatch({type: SIGN_OUT});
 };
 
 export const restoreToken = (userToken, home) => {
@@ -74,9 +158,22 @@ export const restoreToken = (userToken, home) => {
   };
 };
 
-export const getDonorData = (data) => {
+export const getDonorData = (donor) => {
+  console.log('getDonorData', donor);
+
   return {
     type: GET_DATA,
-    payload: data,
+    payload: donor,
   };
+};
+
+// FIND USER IS DONOR OR A ACCEPTOR
+const findUserType = (data, email) => {
+  let type = null;
+  let keys = Object.keys(data);
+  if (keys.length) {
+    let key = keys.filter((k) => data[k].email == email);
+    type = key.length ? data[key[0]].userType : null;
+  }
+  return type;
 };

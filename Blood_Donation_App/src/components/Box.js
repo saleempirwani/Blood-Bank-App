@@ -7,7 +7,7 @@ import { CardHeader, CardContent } from './CardItems'
 const Box = ({ donor, navigation }) => {
     return (
         <Card style={styles.card}>
-            <CardHeader name={donor.name} blood={donor.bloodGroup} />
+            <CardHeader name={donor.name} blood={donor.blood} />
             <CardItem >
                 <Body>
                     <CardContent item="Phone" value={donor.phone} />
