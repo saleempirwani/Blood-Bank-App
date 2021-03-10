@@ -1,7 +1,9 @@
-# Blood-Bank-App-React-Native
+# Blood Bank App Mobile App Using React Native
 
-Using
-* React native
-* Native base
+### Using
+
+* ReactJS
+* Redux
+* Native Base
+* Stack Navigation
 * Firebase
-* React navigation
